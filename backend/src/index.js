@@ -20,6 +20,7 @@ const PORT = process.env.PORT || 5000;
 
 app.use("/api/auth",authRoutes);
 
+
 // test route
 app.get("/", async (req, res) => {
   const result = await pool.query("SELECT current_database()");
