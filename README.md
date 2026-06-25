@@ -1,3 +1,4 @@
-# Geo Pulse 🏘️
-A community event & contribution platform for Indian neighborhoods.
+# GeoPulse 🌍
+A hyperlocal community platform — events, alerts, news and neighbor 
+connections for your neighborhood.
 Built with: React, Node.js, Express, PostgreSQL
