@@ -2,10 +2,10 @@ import pool from "../config/db.js";
 
 // create neighborhood
 export const createNeighborhood = async (req , res)=>{
-    const {name,city,pincode} = req.body;
+    const {name,city,pincode,type} = req.body;
     const user_id = req.user.user_id;
     try {
-        const existing = await pool.query("SELECT * FROM neighborhoods WHERE (name,city,pincode) = ($1, $2, $3)",[name,city,pincode]);
+        const existing = await pool.query("SELECT * FROM neighborhoods WHERE (name,pincode,type) = ($1, $2, $3)",[name,pincode,type]);
         if(existing.rows.length >0){
             return res.status(400).json({
                 message:"Neighborhoods With This Pincode Already Exists",
@@ -13,7 +13,7 @@ export const createNeighborhood = async (req , res)=>{
             })
         }
 
-        const neighborhood = await pool.query("INSERT INTO neighborhoods(name,city,pincode) VALUES($1,$2,$3) RETURNING *",[name,city,pincode]);
+        const neighborhood = await pool.query("INSERT INTO neighborhoods(name,city,pincode,type) VALUES($1,$2,$3,$4) RETURNING *",[name,city,pincode,type]);
 
        await pool.query("INSERT INTO neighborhood_members (user_id,neighborhood_id,role) VALUES ($1, $2, $3)",[user_id,neighborhood.rows[0].id,"admin"]);
 
@@ -32,10 +32,10 @@ export const createNeighborhood = async (req , res)=>{
 // join neighborhood
 
 export const joinNeighborhood = async (req,res)=>{
-    const {name,city,pincode} = req.body;
+    const {neighborhoodId} = req.body;
     const user_id = req.user.user_id;
     try {
-     const result = await pool.query("SELECT * FROM neighborhoods WHERE (name,city,pincode) = ($1, $2, $3)",[name,city,pincode]);
+     const result = await pool.query("SELECT * FROM neighborhoods WHERE id = $1",[neighborhoodId]);
      if(result.rows.length === 0 ){
         return res.status(400).json({message:"No neighborhood found with given details"});
      }   
@@ -50,7 +50,7 @@ export const joinNeighborhood = async (req,res)=>{
      await pool.query("INSERT INTO neighborhood_members(user_id,neighborhood_id,role) VALUES ($1, $2, $3)",[user_id,neighborhood_id,"member"]);
 
      return res.json({message:"Successfully Joined the neighborhood",
-        "neighborhood":neighborhood.rows[0],
+        neighborhood:result.rows[0],
      });
 
 
@@ -97,4 +97,63 @@ export const getMyNeighborhood = async (req,res)=>{
         neighborhoods:result.rows,
         count:result.rows.length,
     })
+}
+
+
+//user searches neighborhood
+
+export const searchNeighborhoods = async (req,res)=>{
+    const{pincode,name,city} = req.query;
+    try {
+        let conditions = [];
+        let values = [];
+        let counter =1;
+
+
+
+        if(pincode){
+            conditions.push(`n.pincode ILIKE $${counter}`);
+            values.push(`%${pincode}%`);
+            counter++;
+        }
+
+        if(name){
+            conditions.push(`n.name ILIKE $${counter}`);
+            values.push(`%${name}%`);
+            counter++;
+        }
+
+        if(city){
+            conditions.push(`n.city ILIKE $${counter}`);
+            values.push(`%${city}%`);
+            counter++;
+        }
+
+        if(conditions.length===0){
+            return res.status(400).json({message:"Please provide at least one search term"});
+        }
+
+        const query =`
+            SELECT n.*,count(nm.id) AS member_count FROM neighborhoods n LEFT JOIN neighborhood_members nm ON n.id = nm.neighborhood_id
+            WHERE ${conditions.join(' AND ')}
+            GROUP BY n.id
+            ORDER BY member_count DESC;     
+        `
+
+        const result = await pool.query(query,values);
+
+        if(result.rows.length ===0){
+            return res.status(404).json({message:"No neighborhod found"})
+        }
+
+        return res.json({
+            neighborhoods:result.rows,
+            count:result.rows.length,
+        })
+
+
+    } catch (error) {
+        console.error(error);
+        return res.json({message:"Server Error"});
+    }
 }
