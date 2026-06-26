@@ -5,6 +5,7 @@ import pool from "./config/db.js";
 
 import authRoutes from "./routes/auth.js";
 import neighborhoodRoutes from "./routes/neighborhood.js";
+import eventRoutes from "./routes/eventRoutes.js";
 
 
 dotenv.config();
@@ -23,6 +24,7 @@ const PORT = process.env.PORT || 5000;
 
 app.use("/api/auth",authRoutes);
 app.use("/api/neighborhoods",neighborhoodRoutes);
+app.use("/api/events",eventRoutes);
 
 // test route
 app.get("/", async (req, res) => {
