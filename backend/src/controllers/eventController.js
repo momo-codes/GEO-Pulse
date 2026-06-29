@@ -1,4 +1,5 @@
 import pool from "../config/db.js";
+import {notifyNeighbors} from "../utils/notificationHelper.js"
 
 export const createEvent = async (req,res)=>{
     const {title,description,date,location,neighborhood_id} =req.body;
@@ -17,6 +18,17 @@ export const createEvent = async (req,res)=>{
 
         await pool.query(`INSERT INTO event_attendees (user_id,event_id) VALUES ($1,$2)`,[user_id,event.rows[0].id]);
 
+        // poster for notification
+        const poster = await pool.query(`SELECT name FROM users WHERE id = $1`,[user_id]);
+        const message = `🎉 ${poster.rows[0].name} created a new event ${title}`;
+        const io = req.app.get('io');
+        await notifyNeighbors(
+            neighborhood_id,
+            user_id,
+            'event',
+            message,
+            event.rows[0].id,
+            io);
         return res.status(201).json({
             message:"Event Created Successfully",
             event:event.rows[0],

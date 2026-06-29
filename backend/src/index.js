@@ -41,6 +41,20 @@ socket.on('leave_event',(eventId)=>{
   console.log(`user ${socket.id} left event_${eventId}`);
 })
 
+//user join neighborhood room
+socket.on('join_neighborhood',(neighborhoodId)=>{
+  socket.join(`neighborhood_${neighborhoodId}`);
+})
+
+//leave neighborhood room
+socket.on('leave_neighborhood',(neighborhoodId)=>{
+  socket.leave(`neighborhood_${neighborhoodId}`)
+})
+
+socket.on('join_user_name',(userId)=>{
+  socket.join(`user_${userId}`);
+  console.log(`user ${userId} joined their personel room`)
+})
 
 //user gets disconnected 
 

@@ -1,4 +1,5 @@
 import pool from "../config/db.js";
+import {notifyNeighbors} from "../utils/notificationHelper.js";
 
 // create community post
 
@@ -30,6 +31,15 @@ export const createCommunityPost = async(req,res)=>{
                 posted_by:user_id
             })
         }
+if(type === 'help'){
+    const poster = await pool.query(`SELECT name FROM users WHERE id = $1`,[user_id]);
+    const message = `🆘 ${poster.rows[0].name} needs help : ${title}`;
+    const io = req.app.get('io');
+
+    await notifyNeighbors(neighborhood_id,user_id,'help',message,post.rows[0].id,io);
+    
+}
+
 
         return res.status(201).json({
             message:"Post created successfully",
