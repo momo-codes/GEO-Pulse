@@ -87,11 +87,11 @@ export const deletePost = async(req,res)=>{
             return res.status(403).json({message:"You can only delete your own posts"})
         }
 
-        const deleted = await pool.query(`DELETE FROM posts WHERE id -$1`,[postId]);
+        const deleted = await pool.query(`DELETE FROM posts WHERE id = $1`,[postId]);
 
         const io = req.app.get('io');
 
-        io.to(`event_${post.rows[0].event_id}`),emit('post_deleted',{postId});
+        io.to(`event_${post.rows[0].event_id}`).emit('post_deleted',{postId});
 
         return res.json({message:"Post deleted successfully"});
     } catch (error) {
