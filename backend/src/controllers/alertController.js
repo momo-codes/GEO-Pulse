@@ -2,9 +2,9 @@ import pool from "../config/db.js";
 import {notifyNeighbors} from "../utils/notificationHelper.js"
 
 //create alert 
-export const createAlert = async (req,rea)=>{
+export const createAlert = async (req,res)=>{
     const user_id = req.user.user_id;
-    const{neighborhoodId,type,description} =  req,body;
+    const{neighborhoodId,type,description} =  req.body;
 
     const validTypes = ['safety','emergency','infrastructure','other'];
 
@@ -54,7 +54,7 @@ export const getNeighborhoodAlert = async(req,res)=>{
 
             return res.json({
                 alerts:alerts.rows,
-                counta:alerts.rows.length
+                count:alerts.rows.length
             })
     } catch (error) {
         console.error(error);

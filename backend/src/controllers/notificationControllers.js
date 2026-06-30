@@ -9,7 +9,7 @@ export const getMyNotifications = async(req,res)=>{
         const unread = await pool.query(`SELECT COUNT(*) FROM notifications WHERE user_id =$1 AND is_read =false`,[user_id]);
         return res.json({
             notifications:notifications.rows,
-            unreadCount:unread.rows.length
+            unreadCount:parseInt(unread.rows[0].count)
         })
     } catch (error) {
         console.error(error);

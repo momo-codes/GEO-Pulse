@@ -1,5 +1,5 @@
 import express from "express";
-import checkLogin from "../middleware/authMiddleware";
+import checkLogin from "../middleware/authMiddleware.js";
 import {createAlert,getNeighborhoodAlert} from "../controllers/alertController.js";
 const router = express.Router();
 
