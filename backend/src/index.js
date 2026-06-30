@@ -74,8 +74,8 @@ import eventRoutes from "./routes/eventRoutes.js";
 import contributionRoutes from "./routes/contributionRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import feedRoutes from "./routes/feedRoutes.js";
-
-
+import notificationRoutes from "./routes/notificationRoutes.js";
+import alertRoutes from "./routes/alertRoutes.js";
 
 
 
@@ -94,6 +94,8 @@ app.use("/api/events",eventRoutes);
 app.use("/api",contributionRoutes);
 app.use("/api",postRoutes);
 app.use("/api/feed",feedRoutes);
+app.use("/api/notifications",notificationRoutes);
+app.use("/api/alerts",alertRoutes);
 
 // test route
 app.get("/", async (req, res) => {
